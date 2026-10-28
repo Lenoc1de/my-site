@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Сила Соли // Цифровой онбординг</title>
+  <meta name="description" content="Вводная памятка для новых сотрудников компании «Сила Соли» — производителя жидкостей для вейпа.">
+  <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #030303;
+      --bg-soft: #0a0a0f;
+      --surface: #111118;
+      --surface-elevated: #1a1a24;
+      --text: #ededf2;
+      --muted: #8b8b9e;
+      --neon: #c026d3;
+      --neon-bright: #e879f9;
+      --cyan: #22d3ee;
+      --border: #262633;
+      --radius: 12px;
+      --glass: rgba(17, 17, 24, 0.6);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---- Шумовая текстура ---- */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.5;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 3px; }
+
+    /* ---- Кастомный курсор ---- */
+    .cursor-dot, .cursor-ring {
+      position: fixed;
+      pointer-events: none;
+      z-index: 10000;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.3s;
+    }
+    .cursor-dot {
+      width: 6px; height: 6px;
+      background: var(--neon-bright);
+      box-shadow: 0 0 10px var(--neon);
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid var(--neon);
+      transition: width 0.2s, height 0.2s, background 0.2s;
+    }
+    body:has(a:hover) .cursor-ring,
+    body:has(button:hover) .cursor-ring {
+      width: 56px; height: 56px;
+      background: rgba(192, 38, 211, 0.1);
+      border-color: var(--neon-bright);
+    }
+    @media (max-width: 768px) {
+      .cursor-dot, .cursor-ring { display: none; }
+    }
+
+    /* ---- Canvas фон ---- */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      opacity: 0.6;
+    }
+
+    .container {
+      width: min(1200px, calc(100% - 48px));
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* ---- Хедер ---- */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 20px 0;
+      transition: background 0.3s, backdrop-filter 0.3s;
+    }
+    header.scrolled {
+      background: rgba(3, 3, 3, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-mark {
+      width: 10px; height: 10px;
+      background: var(--neon);
+      border-radius: 2px;
+      transform: rotate(45deg);
+      box-shadow: 0 0 12px var(--neon);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    nav { display: flex; gap: 28px; }
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: color 0.2s;
+      position: relative;
+    }
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0;
+      width: 0; height: 1px;
+      background: var(--neon);
+      transition: width 0.3s;
+    }
+    nav a:hover { color: var(--neon-bright); }
+    nav a:hover::after { width: 100%; }
+
+    /* ---- Hero ---- */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 140px 0 80px;
+      position: relative;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .hero-kicker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--cyan);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hero-kicker::before {
+      content: '';
+      width: 32px; height: 1px;
+      background: var(--cyan);
+    }
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(3rem, 7vw, 5.5rem);
+      line-height: 0.95;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      margin-bottom: 28px;
+      background: linear-gradient(135deg, #fff 0%, #c026d3 50%, #22d3ee 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-lead {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 520px;
+      margin-bottom: 40px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary {
+      background: var(--neon);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(192, 38, 211, 0.4);
+    }
+    .btn-primary:hover {
+      background: var(--neon-bright);
+      box-shadow: 0 0 30px rgba(232, 121, 249, 0.6);
+      transform: translateY(-2px);
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-ghost:hover {
+      border-color: var(--neon);
+      color: var(--neon-bright);
+    }
+
+    /* ---- Карточка директора ---- */
+    .director-card {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .director-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--neon), var(--cyan));
+    }
+    .director-card:hover { border-color: rgba(192, 38, 211, 0.4); }
+    .director-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--neon-bright);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .director-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .director-role {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .director-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      padding: 6px 12px;
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      border-radius: 100px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--cyan);
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      background: var(--cyan);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    /* ---- Секции ---- */
+    section {
+      padding: 120px 0;
+      position: relative;
+    }
+    .section-header {
+      margin-bottom: 60px;
+    }
+    .section-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--neon);
+      letter-spacing: 0.2em;
+      margin-bottom: 16px;
+      display: block;
+    }
+    h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .section-desc {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 600px;
+    }
+
+    /* ---- Bento Grid ---- */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: minmax(180px, auto);
+      gap: 16px;
+    }
+    .bento-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s;
+      transform-style: preserve-3d;
+      perspective: 1000px;
+    }
+    .bento-item:hover {
+      border-color: rgba(192, 38, 211, 0.4);
+      transform: translateY(-4px);
+    }
+    .bento-item.large { grid-column: span 2; grid-row: span 2; }
+    .bento-item.medium { grid-column: span 2; }
+    .bento-item.tall { grid-row: span 2; }
+    .bento-item.small { grid-column: span 1; }
+
+    .bento-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      background: rgba(192, 38, 211, 0.1);
+      border: 1px solid rgba(192, 38, 211, 0.2);
+    }
+    .bento-item h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .bento-item p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+    .bento-tag {
+      position: absolute;
+      top: 20px; right: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    /* ---- История (редакционный блок) ---- */
+    .editorial {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: start;
+    }
+    .editorial-sticky {
+      position: sticky;
+      top: 120px;
+    }
+    .editorial-sticky h2 {
+      font-size: clamp(2rem, 3.5vw, 2.8rem);
+    }
+    .editorial-sticky .section-desc {
+      margin-top: 16px;
+    }
+    .editorial-body {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+    .story-block {
+      border-left: 2px solid var(--border);
+      padding-left: 28px;
+      position: relative;
+      transition: border-color 0.3s;
+    }
+    .story-block:hover { border-color: var(--neon); }
+    .story-block::before {
+      content: '';
+      position: absolute;
+      left: -5px; top: 6px;
+      width: 8px; height: 8px;
+      background: var(--neon);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--neon);
+    }
+    .story-block h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .story-block p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
+
+    /* ---- Чек-лист ---- */
+    .checklist-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      margin-top: 40px;
+    }
+    .checklist { list-style: none; }
+    .checklist li {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 0;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: background 0.2s;
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist label {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 0.95rem;
+    }
+    input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 22px; height: 22px;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: all 0.2s;
+      background: transparent;
+    }
+    input[type="checkbox"]:checked {
+      background: var(--neon);
+      border-color: var(--neon);
+      box-shadow: 0 0 12px rgba(192, 38, 211, 0.4);
+    }
+    input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 45%; left: 50%;
+      width: 10px; height: 5px;
+      border-left: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      transform: translate(-50%, -50%) rotate(-45deg);
+    }
+
+    /* ---- Таблица ---- */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+    table { width: 100%; border-collapse: collapse; min-width: 800px; }
+    th, td {
+      padding: 20px 24px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--neon);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background: rgba(192, 38, 211, 0.05);
+    }
+    tr:last-child td { border-bottom: none; }
+    td { color: var(--muted); font-size: 0.9rem; }
+    td:first-child { color: var(--text); font-weight: 600; }
+
+    /* ---- Правила ---- */
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 40px;
+    }
+    .rule-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      transition: border-color 0.3s;
+    }
+    .rule-card:hover { border-color: rgba(192, 38, 211, 0.3); }
+    .rule-card h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .rule-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.7; }
+
+    .notice-box {
+      margin-top: 32px;
+      padding: 24px 28px;
+      background: rgba(192, 38, 211, 0.08);
+      border: 1px solid rgba(192, 38, 211, 0.25);
+      border-left: 3px solid var(--neon);
+      border-radius: var(--radius);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--neon-bright);
+      line-height: 1.8;
+    }
+
+    /* ---- Тест ---- */
+    .quiz-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+    }
+    .question { border: none; margin-bottom: 32px; }
+    .question legend {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: block;
+      color: var(--text);
+    }
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--bg-soft);
+    }
+    .option:hover {
+      border-color: var(--neon);
+      background: var(--surface-elevated);
+    }
+    .option input[type="radio"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .option input[type="radio"]:checked {
+      border-color: var(--neon);
+      background: var(--neon);
+      box-shadow: 0 0 10px rgba(192, 38, 211, 0.4);
+    }
+    .option input[type="radio"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 8px; height: 8px;
+      background: #fff;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .result-box {
+      display: none;
+      margin-top: 24px;
+      padding: 20px 24px;
+      border-radius: var(--radius);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+    .result-box.show { display: block; }
+    .result-box.success {
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      color: var(--cyan);
+    }
+    .result-box.fail {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+
+    /* ---- Форма ---- */
+    .form-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .field label {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--neon-bright);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none;
+      border-color: var(--neon);
+      box-shadow: 0 0 0 3px rgba(192, 38, 211, 0.1);
+    }
+    .field textarea { min-height: 120px; resize: vertical; }
+    .form-note {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 16px;
+      line-height: 1.7;
+    }
+
+    /* ---- Футер ---- */
+    footer {
+      padding: 60px 0 40px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .footer-brand {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+    .footer-text {
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ---- Анимации появления ---- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ---- Адаптивность ---- */
+    @media (max-width: 1024px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+      .editorial { grid-template-columns: 1fr; gap: 40px; }
+      .editorial-sticky { position: static; }
+      .bento-grid { grid-template-columns: repeat(2, 1fr); }
+      .bento-item.large, .bento-item.medium { grid-column: span 2; }
+      .rules-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      nav { display: none; }
+      .bento-grid { grid-template-columns: 1fr; }
+      .bento-item.large, .bento-item.medium, .bento-item.tall { grid-column: span 1; grid-row: span 1; }
+      .form-grid { grid-template-columns: 1fr; }
+      .checklist-container, .quiz-panel, .form-panel { padding: 24px; }
+      section { padding: 80px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+  <canvas id="bg-canvas"></canvas>
+
+  <header id="header">
+    <div class="container topbar">
+      <a href="#" class="logo"><span class="logo-mark"></span> Сила Соли</a>
+      <nav>
+        <a href="#history">История</a>
+        <a href="#start">Старт</a>
+        <a href="#departments">Отделы</a>
+        <a href="#people">Контакты</a>
+        <a href="#rules">Правила</a>
+        <a href="#test">Тест</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="reveal">
+          <div class="hero-kicker">Onboarding Protocol // v2.0</div>
+          <h1>Твоя роль<br>в «Силе Соли»</h1>
+          <p class="hero-lead">
+            Мы создаём жидкости для вейпа с точной дозировкой и прозрачным составом.
+            Этот гид — твой первый шаг в команду.
+          </p>
+          <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <a href="#start" class="btn btn-primary">Начать варить sweg →</a>
+            <button class="btn btn-ghost" onclick="window.print()">Распечатать</button>
+          </div>
+        </div>
+        <div class="director-card reveal">
+          <div class="director-label">Директор предприятия</div>
+          <div class="director-name">Дума<br>Даниил Николаевич</div>
+          <div class="director-role">Основатель и руководитель «Силы Соли»</div>
+          <div class="director-status">
+            <span class="status-dot"></span> НЕ ПИШИТЕ
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ИСТОРИЯ -->
+    <section id="history">
+      <div class="container">
+        <div class="editorial">
+          <div class="editorial-sticky reveal">
+            <span class="section-num">01 // ORIGIN</span>
+            <h2>Как появилось производство</h2>
+            <p class="section-desc">
+              История «Силы Соли» началась с простого вопроса: почему качественная
+              жидкость для вейпа должна быть либо дорогой, либо непонятной по составу?
+            </p>
+          </div>
+          <div class="editorial-body">
+            <div class="story-block reveal">
+              <h3>Идея, выросшая из потребности</h3>
+              <p>
+                В один год рынок столкнулся с проблемой: импортные жидкости подорожали,
+                а состав на упаковке не всегда понятен. Пользователи хотели стабильного
+                качества и прозрачных ингредиентов, а магазины — надёжного поставщика.
+              </p>
+              <p style="margin-top: 12px;">
+                Даниил решил рискнуть и запустить локальное производство жидкостей для
+                вейпа полного цикла — с собственной лабораторией и контролем каждой партии.
+              </p>
+            </div>
+            <div class="story-block reveal">
+              <h3>Местные ресурсы и первые партии</h3>
+              <p>
+                Даниил привлёк технолога с опытом работы в химической и пищевой отрасли.
+                Вместе они выстроили процесс: закупка проверенного пропиленгликоля,
+                глицерина, ароматизаторов и никотиновой соли, строгая дозировка
+                и лабораторный контроль готовой жидкости.
+              </p>
+              <p style="margin-top: 12px;">
+                Первые партии поставляли «по знакомству» небольшим вейп-шопам.
+                Результаты оказались хорошими: стабильный вкус, точная крепость
+                и предсказуемая работа в устройствах.
+              </p>
+            </div>
+            <div class="story-block reveal">
+              <h3>Почему «Сила Соли»?</h3>
+              <p>
+                Название выбрали как понятный образ: в основе качественной жидкости —
+                никотиновая соль, а «сила» — это точность дозировки и стабильность
+                результата от партии к партии.
+              </p>
+              <p style="margin-top: 12px;">
+                Сегодня предприятие закрывает значительную долю потребности региона
+                в жидкостях для вейпа и планирует выход на соседние регионы. Мы
+                продолжаем развивать производство и заботиться о качестве продукции.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- СТАРТ + ЧЕК-ЛИСТ -->
+    <section id="start">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-num">02 // START</span>
+          <h2>С чего начать</h2>
+          <p class="section-desc">
+            В первые дни не нужно знать всё. Задавайте вопросы руководителю и наставнику,
+            проходите обучение и отмечайте выполненные шаги.
+          </p>
+        </div>
+        <div class="bento-grid" style="margin-bottom: 40px;">
+          <div class="bento-item medium reveal">
+            <div class="bento-tag">DAY 01</div>
+            <div class="bento-icon">👋</div>
+            <h3>Знакомство</h3>
+            <p>Познакомьтесь с руководителем и наставником, уточните график, место работы и план обучения.</p>
+          </div>
+          <div class="bento-item medium reveal">
+            <div class="bento-tag">DAY 01</div>
+            <div class="bento-icon">📚</div>
+            <h3>Обучение</h3>
+            <p>Изучите свои задачи, рабочие инструменты, правила безопасности при работе с никотином и порядок обращения за помощью.</p>
+          </div>
+          <div class="bento-item medium reveal">
+            <div class="bento-tag">DAY 01</div>
+            <div class="bento-icon">💬</div>
+            <h3>Обратная связь</h3>
+            <p>Обсудите с руководителем, что уже получается и какая поддержка или дополнительное обучение нужны.</p>
+          </div>
+        </div>
+
+        <div class="checklist-container reveal">
+          <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; margin-bottom: 8px;">Личный чек-лист</h3>
+          <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 24px;">Отметки автоматически сохраняются в вашем браузере.</p>
+          <ul class="checklist" id="onboardingChecklist">
+            <li><label><input type="checkbox" data-check="1"> Познакомился(ась) с руководителем и наставником</label></li>
+            <li><label><input type="checkbox" data-check="2"> Узнал(а) свой график, место работы и порядок учёта времени</label></li>
+            <li><label><input type="checkbox" data-check="3"> Прошёл(ла) вводный инструктаж по охране труда и работе с никотином</label></li>
+            <li><label><input type="checkbox" data-check="4"> Узнал(а), где находятся необходимые документы и инструменты</label></li>
+            <li><label><input type="checkbox" data-check="5"> Обсудил(а) задачи и ожидания на испытательный срок</label></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ОТДЕЛЫ -->
+    <section id="departments">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-num">03 // DEPARTMENTS</span>
+          <h2>Наши отделы</h2>
+          <p class="section-desc">У каждого отдела свои задачи, но результат зависит от слаженной работы всей команды.</p>
+        </div>
+        <div class="bento-grid">
+          <div class="bento-item large reveal">
+            <div class="bento-tag">LAB</div>
+            <div class="bento-icon">🧪</div>
+            <h3>Лаборатория</h3>
+            <p style="font-size: 1rem; line-height: 1.8; margin-top: 12px;">
+              Разработка и контроль качества. Работать строго по инструкциям, уточнять порядок отбора проб,
+              соблюдать требования к чистоте, дозировке никотина и маркировке.
+            </p>
+          </div>
+          <div class="bento-item tall reveal">
+            <div class="bento-tag">PROD</div>
+            <div class="bento-icon">🏭</div>
+            <h3>Производство</h3>
+            <p style="margin-top: 12px;">
+              Не запускать оборудование без допуска и обучения, соблюдать инструктажи
+              и использовать СИЗ при работе с концентратами.
+            </p>
+          </div>
+          <div class="bento-item medium reveal">
+            <div class="bento-tag">HQ</div>
+            <div class="bento-icon">🏢</div>
+            <h3>Офис</h3>
+            <p>Координируем административные, кадровые и снабженческие процессы. Уточнить порядок согласования документов, сроки и ответственных сотрудников.</p>
+          </div>
+          <div class="bento-item small reveal">
+            <div class="bento-tag">QC</div>
+            <div class="bento-icon">🔬</div>
+            <h3>Контроль</h3>
+            <p>Проверка каждой партии перед отправкой.</p>
+          </div>
+          <div class="bento-item small reveal">
+            <div class="bento-tag">LOG</div>
+            <div class="bento-icon">📦</div>
+            <h3>Логистика</h3>
+            <p>Своевременная доставка.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ЛЮДИ -->
+    <section id="people">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-num">04 // PEOPLE</span>
+          <h2>К кому обратиться</h2>
+          <p class="section-desc">Важно: обращаться только в рабочее время.</p>
+        </div>
+        <div class="table-wrap reveal">
+          <table>
+            <thead>
+              <tr>
+                <th>Отдел / роль</th>
+                <th>Руководитель</th>
+                <th>Кабинет</th>
+                <th>Телефон (пример)</th>
+                <th>Вопросы</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Директор</td>
+                <td>Дума Даниил Николаевич</td>
+                <td>Офис, 1488</td>
+                <td>+7 (967) 000-67-67</td>
+                <td>Общие вопросы — через предварительную запись.</td>
+              </tr>
+              <tr>
+                <td>Лаборатория</td>
+                <td>Дмитрий Тимурович Ли</td>
+                <td>Корпус Л, Л-1</td>
+                <td>+7 (000) 000-00-01</td>
+                <td>Анализы, отбор проб, рецептуры, дозировка.</td>
+              </tr>
+              <tr>
+                <td>Реакторная</td>
+                <td>Даниил Владимир Лузан</td>
+                <td>Корпус Ц, Ц-2</td>
+                <td>+7 (000) 000-00-02</td>
+                <td>Смена, оборудование, задания, безопасность.</td>
+              </tr>
+              <tr>
+                <td>Офис</td>
+                <td>Кристинка</td>
+                <td>Офис, 103</td>
+                <td>+7 (000) 000-00-03</td>
+                <td>Документы, оформление, график, отпуск.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ПРАВИЛА -->
+    <section id="rules">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-num">05 // SAFETY</span>
+          <h2>Правила и безопасность</h2>
+        </div>
+        <div class="rules-grid">
+          <div class="rule-card reveal">
+            <h3>⚗️ Работа с никотином</h3>
+            <p>Работайте с никотиновой основой только в СИЗ (перчатки, очки, халат) и при включённой вытяжке. Не допускайте проливов и попадания концентрата на кожу. До начала работы пройдите обязательные инструктажи.</p>
+          </div>
+          <div class="rule-card reveal">
+            <h3>🤝 Общение</h3>
+            <p>Обращайтесь к коллегам уважительно. Если допустили ошибку или заметили проблему, сообщите об этом ответственному сотруднику. Задавать вопросы — нормально: это помогает работать безопасно и качественно.</p>
+          </div>
+          <div class="rule-card reveal">
+            <h3>🔒 Рабочая информация</h3>
+            <p>Бережно обращайтесь с документами, рецептурами и данными о производстве. Не передавайте внутреннюю информацию и состав жидкостей посторонним и соблюдайте правила компании.</p>
+          </div>
+        </div>
+        <div class="notice-box reveal">
+          ⚠ Эта памятка не заменяет должностную инструкцию, обучение, инструктажи и локальные нормативные документы предприятия.
+        </div>
+      </div>
+    </section>
+
+    <!-- ТЕСТ -->
+    <section id="test">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-num">06 // QUIZ</span>
+          <h2>Итоговый тест</h2>
+          <p class="section-desc">Проверьте свои знания правил безопасности и регламентов.</p>
+        </div>
+        <form id="quizForm" class="quiz-panel reveal">
+          <fieldset class="question">
+            <legend>01. Что нужно надеть перед работой с никотиновой основой?</legend>
+            <label class="option"><input type="radio" name="q1" value="a" required> Ничего, достаточно аккуратности</label>
+            <label class="option"><input type="radio" name="q1" value="b"> СИЗ: перчатки, очки, халат</label>
+            <label class="option"><input type="radio" name="q1" value="c"> Только перчатки</label>
+          </fieldset>
+          <fieldset class="question">
+            <legend>02. К кому обратиться с вопросом по задачам и порядку работы?</legend>
+            <label class="option"><input type="radio" name="q2" value="a" required> К руководителю или назначенному наставнику</label>
+            <label class="option"><input type="radio" name="q2" value="b"> Ни к кому — нужно догадаться самому</label>
+            <label class="option"><input type="radio" name="q2" value="c"> К любому посетителю предприятия</label>
+          </fieldset>
+          <fieldset class="question">
+            <legend>03. Что делать, если никотиновый концентрат пролился?</legend>
+            <label class="option"><input type="radio" name="q3" value="a" required> Вытереть тряпкой и продолжить работу</label>
+            <label class="option"><input type="radio" name="q3" value="b"> Сообщить ответственному и действовать строго по инструкции</label>
+            <label class="option"><input type="radio" name="q3" value="c"> Смыть водой в раковину</label>
+          </fieldset>
+          <fieldset class="question">
+            <legend>04. Можно ли передавать рецептуры жидкостей посторонним?</legend>
+            <label class="option"><input type="radio" name="q4" value="a" required> Да, если попросили вежливо</label>
+            <label class="option"><input type="radio" name="q4" value="b"> Только если соблюдены правила компании и есть разрешение</label>
+            <label class="option"><input type="radio" name="q4" value="c"> Всегда можно передавать устно</label>
+          </fieldset>
+          <fieldset class="question">
+            <legend>05. Что делать, если допустили ошибку в дозировке?</legend>
+            <label class="option"><input type="radio" name="q5" value="a" required> Скрыть её</label>
+            <label class="option"><input type="radio" name="q5" value="b"> Сообщить ответственному сотруднику и следовать его указаниям</label>
+            <label class="option"><input type="radio" name="q5" value="c"> Исправить записи задним числом без согласования</label>
+          </fieldset>
+          <fieldset class="question">
+            <legend>06. Можно ли пробовать продукцию на рабочем месте?</legend>
+            <label class="option"><input type="radio" name="q6" value="a" required> Да, если очень хочется</label>
+            <label class="option"><input type="radio" name="q6" value="b"> НУЖНО</label>
+            <label class="option"><input type="radio" name="q6" value="c"> Да, прямо у оборудования</label>
+          </fieldset>
+          <button type="submit" class="btn btn-primary">Проверить ответы</button>
+          <div id="quizResult" class="result-box" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ОБРАТНАЯ СВЯЗЬ -->
+    <section id="feedback">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-num">07 // FEEDBACK</span>
+          <h2>Обратная связь</h2>
+          <p class="section-desc">Напишите имя и отзыв: что было полезно, что осталось непонятным и какая помощь нужна.</p>
+        </div>
+        <form id="feedbackForm" class="form-panel reveal">
+          <div class="form-grid">
+            <div class="field">
+              <label for="employeeName">Ваше имя</label>
+              <input id="employeeName" name="employeeName" type="text" maxlength="100" required placeholder="Например, Джамшут Оглы">
+            </div>
+            <div class="field">
+              <label for="employeeDepartment">Ваш отдел</label>
+              <select id="employeeDepartment" name="employeeDepartment" required>
+                <option value="" disabled selected>Выберите отдел</option>
+                <option>Лаборатория</option>
+                <option>Цех</option>
+                <option>Офис</option>
+              </select>
+            </div>
+          </div>
+          <div class="field" style="margin-bottom: 24px;">
+            <label for="employeeReview">Ваш отзыв или вопрос</label>
+            <textarea id="employeeReview" name="employeeReview" maxlength="2000" required placeholder="Поделитесь впечатлениями..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Сохранить отзыв</button>
+          <div id="feedbackResult" class="result-box" role="status" aria-live="polite"></div>
+          <p class="form-note">* В текущей версии отзыв сохраняется локально в вашем браузере. Для сбора ответов потребуется подключить сервер.</p>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-brand">«Сила Соли»</div>
+      <p class="footer-text">Вводная памятка для новых сотрудников. Контакты и локальные правила необходимо проверить и актуализировать.</p>
+    </div>
+  </footer>
+
+  <script>
+    // ---- Кастомный курсор ----
+    const dot = document.getElementById('cursorDot');
+    const ring = document.getElementById('cursorRing');
+    let mouseX = 0, mouseY = 0;
+    let ringX = 0, ringY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      dot.style.left = mouseX + 'px';
+      dot.style.top = mouseY + 'px';
+    });
+
+    function animateRing() {
+      ringX += (mouseX - ringX) * 0.15;
+      ringY += (mouseY - ringY) * 0.15;
+      ring.style.left = ringX + 'px';
+      ring.style.top = ringY + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    // ---- Хедер при скролле ----
+    const header = document.getElementById('header');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    // ---- Canvas фон с частицами ----
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let w, h;
+
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+        this.vx = (Math.random() - 0.5) * 0.4;
+        this.vy = (Math.random() - 0.5) * 0.4;
+        this.radius = Math.random() * 1.5 + 0.5;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x < 0 || this.x > w) this.vx *= -1;
+        if (this.y < 0 || this.y > h) this.vy *= -1;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(192, 38, 211, 0.6)';
+        ctx.fill();
+      }
+    }
+
+    function initParticles() {
+      const count = Math.min(80, Math.floor(w * h / 18000));
+      particles = [];
+      for (let i = 0; i < count; i++) particles.push(new Particle());
+    }
+    initParticles();
+
+    function drawLines() {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 140) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(192, 38, 211, ${0.15 * (1 - dist / 140)})`;
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    function animateCanvas() {
+      ctx.clearRect(0, 0, w, h);
+      particles.forEach(p => { p.update(); p.draw(); });
+      drawLines();
+      requestAnimationFrame(animateCanvas);
+    }
+    animateCanvas();
+
+    // ---- Reveal анимации ----
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ---- Чек-лист ----
+    const checklist = document.querySelectorAll('[data-check]');
+    checklist.forEach(cb => {
+      const key = 'onboarding-check-' + cb.dataset.check;
+      cb.checked = localStorage.getItem(key) === 'true';
+      cb.addEventListener('change', () => {
+        localStorage.setItem(key, cb.checked);
+      });
+    });
+
+    // ---- Тест ----
+    document.getElementById('quizForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const answers = { q1: 'b', q2: 'a', q3: 'b', q4: 'b', q5: 'b', q6: 'b' };
+      const formData = new FormData(e.currentTarget);
+      let score = 0;
+      Object.keys(answers).forEach(q => {
+        if (formData.get(q) === answers[q]) score++;
+      });
+      const total = Object.keys(answers).length;
+      const result = document.getElementById('quizResult');
+      result.className = 'result-box show ' + (score >= total - 1 ? 'success' : 'fail');
+      if (score >= total - 1) {
+        result.textContent = `[РЕЗУЛЬТАТ: ${score}/${total}] Отлично! Вы успешно прошли инструктаж.`;
+      } else {
+        result.textContent = `[РЕЗУЛЬТАТ: ${score}/${total}] Внимание. Перечитайте разделы о безопасности и попробуйте снова.`;
+      }
+    });
+
+    // ---- Форма обратной связи ----
+    document.getElementById('feedbackForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const entry = {
+        name: document.getElementById('employeeName').value.trim(),
+        department: document.getElementById('employeeDepartment').value,
+        review: document.getElementById('employeeReview').value.trim(),
+        createdAt: new Date().toLocaleString('ru-RU')
+      };
+      if (!entry.name || !entry.department || !entry.review) return;
+
+      const saved = JSON.parse(localStorage.getItem('onboarding-feedback') || '[]');
+      saved.push(entry);
+      localStorage.setItem('onboarding-feedback', JSON.stringify(saved));
+
+      const result = document.getElementById('feedbackResult');
+      result.className = 'result-box show success';
+      result.textContent = `[СИСТЕМА]: Спасибо, ${entry.name}. Ваш отзыв сохранён.`;
+      e.currentTarget.reset();
+    });
+  </script>
+</body>
+</html>
